@@ -8,46 +8,50 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
     <style>
-        .static {
-            color: red
-        }
-        
-        .big {
-            font-size: 20px
-        }
-        
-        .blue-back {
-            background-color: blue
-        }
+
     </style>
 </head>
 
 <body>
     <div id="app">
-        <p class="big" v-bind:class="isStatic ? 'static' : 'blue-back'">Hello World!</p>
-        <div v-bind:style="{color: 'green', 'font-size': fontSize}">
-            {{message}}
-        </div>
+        <input type="checkbox" v-model="sorted" v-on:click.right.prevent="checked($event)" v-bind:disabled="isDisabled">
+        <input v-model="newInputText" v-on:keyup.enter="addNewItem" placeholder="input text">
+        <ul>
+            <li is="item-list" v-for="(item, index) in sortedItems" v-bind:text="item" v-on:remove-item="removeItem(index)"></li>
+        </ul>
     </div>
 
     <script>
+        Vue.component('item-list', {
+            template: '<li v-on:click="$emit(\'remove-item\')">{{text}}</li>',
+            props: ['text'],
+        })
         var app = new Vue({
             el: '#app',
             data: {
-                message: 'Hi there!',
-                isStatic: true,
-                isBlue: false,
-                fontSize: '30px'
+                newInputText: '',
+                items: [],
+                sorted: true,
+                isDisabled: false
+            },
+            computed: {
+                sortedItems: function() {
+                    return this.sorted ? this.items.sort() : this.items
+                }
             },
             methods: {
-                classObject: function() {
-                    return {
-                        'static': this.isStatic,
-                        'blue-back': this.isBlue
-                    }
+                addNewItem: function() {
+                    this.items.push(this.newInputText)
+                    this.newInputText = ''
+                },
+                removeItem: function(idx) {
+                    this.items.splice(idx, 1)
+                },
+                checked: function(evt) {
+                    this.isDisabled = true
+                    console.log(evt)
                 }
             }
-
         })
     </script>
 </body>
